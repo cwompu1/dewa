@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
     <title>DEWA Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -26,10 +28,26 @@
             background-color: var(--tg-theme-bg-color, #000000);
             color: var(--tg-theme-text-color, #ffffff);
             padding-bottom: 100px;
+            /* Фиксированный размер по высоте под мобильный экран */
+            min-height: 100vh;
+            max-height: 100vh;
+            overflow-y: auto;
+            /* Отключаем масштабирование при двойном тапе */
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #app {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            height: 100%;
         }
         
         .container {
             padding: 0 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .header {
@@ -352,6 +370,45 @@
         .search-input::placeholder {
             color: #777;
         }
+        
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .content-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 16px;
+            position: relative;
+            height: calc(100vh - 76px); /* Вычитаем высоту header */
+        }
+        
+        @media (max-width: 380px) {
+            .feature-card {
+                flex: 0 0 110px;
+                height: 110px;
+                padding: 12px;
+            }
+            
+            .action-button {
+                min-height: 120px;
+            }
+            
+            .action-title {
+                font-size: 18px;
+            }
+            
+            .action-subtitle {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -362,7 +419,6 @@
     <script>
         // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand();
         
         // Применяем стили Telegram (темная тема для этого интерфейса)
         document.documentElement.style.setProperty('--tg-theme-bg-color', '#000000');
@@ -424,108 +480,112 @@
         // Рендерим интерфейс в стиле UNICORN
         function renderUnicornStyleApp(container, user) {
             container.innerHTML = `
-                <header class="header">
-                    <div class="user-info">
-                        <img src="${user.photoUrl}" alt="${user.firstName}" class="user-avatar">
-                        <div>
-                            <span class="user-name">${user.firstName} ${user.lastName || ''}</span>
-                            <span class="user-tag">Новичок</span>
+                <div class="app-wrapper">
+                    <header class="header">
+                        <div class="user-info">
+                            <img src="${user.photoUrl}" alt="${user.firstName}" class="user-avatar">
+                            <div>
+                                <span class="user-name">${user.firstName} ${user.lastName || ''}</span>
+                                <span class="user-tag">Новичок</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="telegram-channel">
-                        <div class="telegram-icon">
-                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15.9683 1.68816C15.9557 1.62835 15.9276 1.57342 15.8868 1.5289C15.846 1.48437 15.7939 1.45191 15.7363 1.43545C15.5436 1.40027 15.3456 1.4137 15.1601 1.47449C15.1601 1.47449 1.0516 6.18849 0.26525 6.66499C0.11525 6.74549 0.0376251 6.82383 0.0126251 6.90216C-0.0833749 7.12383 0.122625 7.22816 0.122625 7.22816L3.8176 8.36166C3.8856 8.37733 3.9566 8.37733 4.0246 8.36166C4.56043 8.04 12.4323 3.01383 12.8516 2.87983C12.9331 2.85383 12.9998 2.87983 12.9816 2.941C12.8614 3.42266 5.9176 9.62899 5.8836 9.66616C5.86785 9.68047 5.85679 9.69929 5.85179 9.72016L5.60319 13.3202C5.60319 13.3202 5.47119 14.2 6.41119 13.3202C7.08426 12.6911 7.72692 12.0257 8.3376 11.3252C9.67919 12.2686 11.1389 13.3202 11.7166 13.7866C11.8096 13.8573 11.9176 13.9068 12.0328 13.9317C12.148 13.9567 12.2678 13.9565 12.383 13.9312C12.4981 13.9058 12.606 13.856 12.6986 13.7849C12.7912 13.7139 12.8661 13.6232 12.9176 13.5202C12.9176 13.5202 15.8326 3.16633 15.9716 1.81183C15.9883 1.68944 15.9908 1.56415 15.9788 1.44083C15.9753 1.39063 15.9662 1.34121 15.9516 1.29383L15.9683 1.68816Z" fill="white"/>
-                            </svg>
+                        <div class="telegram-channel">
+                            <div class="telegram-icon">
+                                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.9683 1.68816C15.9557 1.62835 15.9276 1.57342 15.8868 1.5289C15.846 1.48437 15.7939 1.45191 15.7363 1.43545C15.5436 1.40027 15.3456 1.4137 15.1601 1.47449C15.1601 1.47449 1.0516 6.18849 0.26525 6.66499C0.11525 6.74549 0.0376251 6.82383 0.0126251 6.90216C-0.0833749 7.12383 0.122625 7.22816 0.122625 7.22816L3.8176 8.36166C3.8856 8.37733 3.9566 8.37733 4.0246 8.36166C4.56043 8.04 12.4323 3.01383 12.8516 2.87983C12.9331 2.85383 12.9998 2.87983 12.9816 2.941C12.8614 3.42266 5.9176 9.62899 5.8836 9.66616C5.86785 9.68047 5.85679 9.69929 5.85179 9.72016L5.60319 13.3202C5.60319 13.3202 5.47119 14.2 6.41119 13.3202C7.08426 12.6911 7.72692 12.0257 8.3376 11.3252C9.67919 12.2686 11.1389 13.3202 11.7166 13.7866C11.8096 13.8573 11.9176 13.9068 12.0328 13.9317C12.148 13.9567 12.2678 13.9565 12.383 13.9312C12.4981 13.9058 12.606 13.856 12.6986 13.7849C12.7912 13.7139 12.8661 13.6232 12.9176 13.5202C12.9176 13.5202 15.8326 3.16633 15.9716 1.81183C15.9883 1.68944 15.9908 1.56415 15.9788 1.44083C15.9753 1.39063 15.9662 1.34121 15.9516 1.29383L15.9683 1.68816Z" fill="white"/>
+                                </svg>
+                            </div>
+                            <span>@poizonshop</span>
                         </div>
-                        <span>@poizonshop</span>
-                    </div>
-                </header>
-                
-                <div class="search-bar">
-                    <div class="search-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="#777"/>
-                        </svg>
-                    </div>
-                    <input type="text" class="search-input" placeholder="Найти кроссовки">
-                </div>
-                
-                <div class="feature-cards">
-                    <div class="feature-card promo">
-                        <p class="feature-title">Зови друзей! +500₽</p>
-                        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/friends-5544636-4629492.png" alt="Friends">
-                    </div>
-                    <div class="feature-card info">
-                        <p class="feature-title">Знакомьтесь, Poizon!</p>
-                        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/gift-box-2872337-2389811.png" alt="Poizon">
-                    </div>
-                    <div class="feature-card unicorn">
-                        <p class="feature-title">Что умеет Unicorn?</p>
-                        <img src="https://cdn-icons-png.flaticon.com/512/2826/2826175.png" alt="Unicorn">
-                    </div>
-                </div>
-                
-                <div class="points-card">
-                    <div class="points-label">Баллы</div>
-                    <div class="points-value">0</div>
-                </div>
-                
-                <div class="action-buttons">
-                    <div class="action-button">
-                        <div>
-                            <div class="action-title">Зови друзей</div>
-                            <div class="action-subtitle">Дарим по <span style="color: var(--secondary-color);">500₽</span> - тебе и приведенному другу</div>
+                    </header>
+                    
+                    <div class="content-container">
+                        <div class="search-bar">
+                            <div class="search-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="#777"/>
+                                </svg>
+                            </div>
+                            <input type="text" class="search-input" placeholder="Найти кроссовки">
                         </div>
-                        <div class="action-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 7L13 12L8 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        
+                        <div class="feature-cards">
+                            <div class="feature-card promo">
+                                <p class="feature-title">Зови друзей! +500₽</p>
+                                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/friends-5544636-4629492.png" alt="Friends">
+                            </div>
+                            <div class="feature-card info">
+                                <p class="feature-title">Знакомьтесь, Poizon!</p>
+                                <img src="https://cdn3d.iconscout.com/3d/premium/thumb/gift-box-2872337-2389811.png" alt="Poizon">
+                            </div>
+                            <div class="feature-card unicorn">
+                                <p class="feature-title">Что умеет Unicorn?</p>
+                                <img src="https://cdn-icons-png.flaticon.com/512/2826/2826175.png" alt="Unicorn">
+                            </div>
                         </div>
-                    </div>
-                    <div class="action-button primary">
-                        <div>
-                            <div class="action-title">Выбрать и заказать</div>
+                        
+                        <div class="points-card">
+                            <div class="points-label">Баллы</div>
+                            <div class="points-value">0</div>
                         </div>
-                        <div class="action-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        
+                        <div class="action-buttons">
+                            <div class="action-button">
+                                <div>
+                                    <div class="action-title">Зови друзей</div>
+                                    <div class="action-subtitle">Дарим по <span style="color: var(--secondary-color);">500₽</span> - тебе и приведенному другу</div>
+                                </div>
+                                <div class="action-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 7L13 12L8 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="action-button primary">
+                                <div>
+                                    <div class="action-title">Выбрать и заказать</div>
+                                </div>
+                                <div class="action-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="calc-button">
-                    <div class="calc-icon">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 4H20V20H4V4Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M4 9H20M9 20V9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div class="calc-text">
-                        <div class="calc-title">Рассчитать стоимость товара из Poizon</div>
-                        <div class="calc-description">Узнайте точную цену с доставкой</div>
-                    </div>
-                    <div class="arrow-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 6L15 12L9 18" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                </div>
-                
-                <div class="section-header">
-                    <h2 class="section-title">Лукбук 2025</h2>
-                    <span class="see-all">Все →</span>
-                </div>
-                <div class="lookbook">
-                    <div class="lookbook-item">
-                        <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=1000&auto=format&fit=crop" alt="Look 1">
-                    </div>
-                    <div class="lookbook-item">
-                        <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=1000&auto=format&fit=crop" alt="Look 2">
-                    </div>
-                    <div class="lookbook-item">
-                        <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1000&auto=format&fit=crop" alt="Look 3">
+                        
+                        <div class="calc-button">
+                            <div class="calc-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 4H20V20H4V4Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M4 9H20M9 20V9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="calc-text">
+                                <div class="calc-title">Рассчитать стоимость товара из Poizon</div>
+                                <div class="calc-description">Узнайте точную цену с доставкой</div>
+                            </div>
+                            <div class="arrow-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 6L15 12L9 18" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="section-header">
+                            <h2 class="section-title">Лукбук 2025</h2>
+                            <span class="see-all">Все →</span>
+                        </div>
+                        <div class="lookbook">
+                            <div class="lookbook-item">
+                                <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=1000&auto=format&fit=crop" alt="Look 1">
+                            </div>
+                            <div class="lookbook-item">
+                                <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=1000&auto=format&fit=crop" alt="Look 2">
+                            </div>
+                            <div class="lookbook-item">
+                                <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1000&auto=format&fit=crop" alt="Look 3">
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
