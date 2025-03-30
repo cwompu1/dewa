@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEWA Shop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: var(--tg-theme-button-color, #2481cc);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .product-title {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .product-price {
+            color: var(--tg-theme-button-color, #2481cc);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .buy-button {
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        .buy-button:hover {
+            background-color: var(--tg-theme-button-color, #1a6ba3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DEWA</h1>
+            <p>Оригинальные товары по лучшим ценам</p>
+        </div>
+        <div class="products">
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200" alt="Товар 1" class="product-image">
+                <h3 class="product-title">Товар 1</h3>
+                <p class="product-price">12,999 ₽</p>
+                <button class="buy-button">Купить</button>
+            </div>
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200" alt="Товар 2" class="product-image">
+                <h3 class="product-title">Товар 2</h3>
+                <p class="product-price">14,999 ₽</p>
+                <button class="buy-button">Купить</button>
+            </div>
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200" alt="Товар 3" class="product-image">
+                <h3 class="product-title">Товар 3</h3>
+                <p class="product-price">9,999 ₽</p>
+                <button class="buy-button">Купить</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Применяем тему Telegram
+            document.body.style.backgroundColor = tg.backgroundColor;
+            document.body.style.color = tg.textColor;
+        });
+
+        // Обработка нажатий на кнопки
+        document.querySelectorAll('.buy-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const product = this.closest('.product-card');
+                const title = product.querySelector('.product-title').textContent;
+                const price = product.querySelector('.product-price').textContent;
+                
+                // Отправляем данные в бота
+                tg.sendData(JSON.stringify({
+                    action: 'buy',
+                    product: title,
+                    price: price
+                }));
+            });
+        });
+    </script>
+</body>
+</html> 
