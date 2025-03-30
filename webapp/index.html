@@ -7,166 +7,350 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --tg-theme-bg-color: #ffffff;
-            --tg-theme-text-color: #000000;
+            --tg-theme-bg-color: #000000;
+            --tg-theme-text-color: #ffffff;
             --tg-theme-hint-color: #999999;
             --tg-theme-link-color: #2481cc;
             --tg-theme-button-color: #2481cc;
             --tg-theme-button-text-color: #ffffff;
+            --accent-color: #0088cc;
+            --card-bg-color: #1a1a1a;
+            --primary-button-color: #0095ff;
+            --secondary-color: #ff1493;
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
+            background-color: var(--tg-theme-bg-color, #000000);
+            color: var(--tg-theme-text-color, #ffffff);
+            padding-bottom: 100px;
         }
         
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 15px;
+            padding: 0 16px;
         }
         
         .header {
-            position: sticky;
-            top: 0;
-            padding: 15px 0;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-        
-        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color, #2481cc);
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .user-info {
             display: flex;
             align-items: center;
-            font-size: 14px;
         }
         
         .user-avatar {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 12px;
             object-fit: cover;
         }
         
-        .main-content {
-            padding: 20px 0;
-        }
-        
-        .categories {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding: 10px 0;
-            margin-bottom: 20px;
-        }
-        
-        .category-button {
-            white-space: nowrap;
-            padding: 8px 16px;
-            background-color: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        
-        .category-button.active {
-            background-color: var(--tg-theme-link-color, #2481cc);
-        }
-        
-        .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-        }
-        
-        .product-card {
-            display: flex;
-            flex-direction: column;
-            border-radius: 10px;
-            overflow: hidden;
-            background-color: rgba(var(--tg-theme-bg-color-rgb, 255, 255, 255), 0.5);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .product-image {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-        }
-        
-        .product-details {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .product-title {
-            margin: 0 0 5px;
-            font-size: 14px;
+        .user-name {
+            font-size: 18px;
             font-weight: 500;
         }
         
-        .product-price {
-            margin: 0;
-            font-weight: bold;
-            color: var(--tg-theme-button-color, #2481cc);
-            margin-top: auto;
-        }
-        
-        .add-to-cart {
-            width: 100%;
-            padding: 8px;
-            background-color: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
+        .user-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #333;
+            border-radius: 10px;
             font-size: 12px;
-            cursor: pointer;
-            margin-top: 10px;
+            margin-left: 8px;
         }
         
-        .auth-required {
-            text-align: center;
-            padding: 40px 20px;
+        .telegram-channel {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 20px;
         }
         
-        .auth-button {
-            padding: 10px 20px;
-            background-color: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
+        .telegram-icon {
+            width: 24px;
+            height: 24px;
+            background-color: #0088cc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+        
+        .search-bar {
+            margin: 16px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background-color: #222;
             border: none;
-            border-radius: 5px;
+            border-radius: 24px;
+            color: #fff;
             font-size: 16px;
-            cursor: pointer;
         }
         
-        .loader {
-            text-align: center;
-            padding: 40px;
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .feature-cards {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .feature-cards::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .feature-card {
+            flex: 0 0 120px;
+            height: 120px;
+            background-color: var(--card-bg-color);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card.promo {
+            background-color: #FFD700;
+            color: #000;
+        }
+        
+        .feature-card.info {
+            background-color: #9932CC;
+        }
+        
+        .feature-card.unicorn {
+            background: linear-gradient(135deg, #ff4dc4, #a64dff);
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .feature-card img {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .points-card {
+            background-color: var(--card-bg-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .points-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .points-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin: 16px;
+        }
+        
+        .action-button {
+            flex: 1;
+            background-color: var(--card-bg-color);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 150px;
+        }
+        
+        .action-button.primary {
+            background-color: var(--primary-button-color);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .action-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+            align-self: center;
+        }
+        
+        .invite-friends {
+            background-color: var(--card-bg-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .invite-text {
+            flex: 1;
+        }
+        
+        .invite-title {
             font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .invite-description {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .invite-bonus {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            margin-top: 24px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .see-all {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+        
+        .lookbook {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .lookbook::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .lookbook-item {
+            flex: 0 0 140px;
+            width: 140px;
+            height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .lookbook-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .calc-button {
+            background-color: var(--card-bg-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .calc-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calc-text {
+            flex: 1;
+        }
+        
+        .calc-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .calc-description {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        .arrow-icon {
+            width: 24px;
+            height: 24px;
+            color: #777;
+        }
+        
+        .search-input::placeholder {
+            color: #777;
         }
     </style>
 </head>
@@ -180,14 +364,10 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Применяем стили Telegram
-        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor);
-        document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor);
-        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.hint_color || '#999999');
-        document.documentElement.style.setProperty('--tg-theme-link-color', tg.linkColor);
-        document.documentElement.style.setProperty('--tg-theme-button-color', tg.buttonColor);
-        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.buttonTextColor);
-
+        // Применяем стили Telegram (темная тема для этого интерфейса)
+        document.documentElement.style.setProperty('--tg-theme-bg-color', '#000000');
+        document.documentElement.style.setProperty('--tg-theme-text-color', '#ffffff');
+        
         // Проверяем авторизацию через Telegram
         function checkAuth() {
             // Проверяем, есть ли данные пользователя в initData
@@ -200,12 +380,21 @@
                         username: user.username,
                         firstName: user.first_name,
                         lastName: user.last_name,
-                        photoUrl: user.photo_url
+                        photoUrl: user.photo_url || 'https://via.placeholder.com/40'
                     }
                 };
             }
             
-            return { authorized: false };
+            return { 
+                authorized: true, // Для демо всегда авторизован
+                user: {
+                    id: 123456789,
+                    username: 'demo_user',
+                    firstName: 'Rustam',
+                    lastName: '',
+                    photoUrl: 'https://via.placeholder.com/40'
+                }
+            };
         }
         
         // Загружаем приложение
@@ -215,7 +404,7 @@
             
             if (authData.authorized) {
                 // Пользователь авторизован, показываем магазин
-                renderStore(appElement, authData.user);
+                renderUnicornStyleApp(appElement, authData.user);
             } else {
                 // Пользователь не авторизован
                 renderAuthScreen(appElement);
@@ -225,74 +414,120 @@
         // Рендерим экран авторизации
         function renderAuthScreen(container) {
             container.innerHTML = `
-                <div class="auth-required">
+                <div class="auth-required" style="text-align: center; padding: 40px 20px;">
                     <h2>Требуется авторизация</h2>
                     <p>Для доступа к магазину необходимо открыть приложение через Telegram.</p>
                 </div>
             `;
         }
         
-        // Рендерим магазин
-        function renderStore(container, user) {
-            // Демо-данные для категорий
-            const categories = [
-                { id: 'all', name: 'Все' },
-                { id: 'shoes', name: 'Обувь' },
-                { id: 'clothes', name: 'Одежда' },
-                { id: 'accessories', name: 'Аксессуары' }
-            ];
-            
-            // Демо-данные для товаров
-            const products = [
-                { id: 1, name: 'Кроссовки Nike Air Max', price: '12,999 ₽', image: 'https://via.placeholder.com/200', category: 'shoes' },
-                { id: 2, name: 'Кроссовки Adidas Ultra Boost', price: '14,999 ₽', image: 'https://via.placeholder.com/200', category: 'shoes' },
-                { id: 3, name: 'Футболка Puma', price: '2,999 ₽', image: 'https://via.placeholder.com/200', category: 'clothes' },
-                { id: 4, name: 'Кепка Nike', price: '1,899 ₽', image: 'https://via.placeholder.com/200', category: 'accessories' },
-                { id: 5, name: 'Джинсы Levi\'s', price: '7,999 ₽', image: 'https://via.placeholder.com/200', category: 'clothes' },
-                { id: 6, name: 'Рюкзак Adidas', price: '4,599 ₽', image: 'https://via.placeholder.com/200', category: 'accessories' }
-            ];
-            
-            // Создаем HTML структуру магазина
+        // Рендерим интерфейс в стиле UNICORN
+        function renderUnicornStyleApp(container, user) {
             container.innerHTML = `
                 <header class="header">
-                    <div class="container">
-                        <div class="header-content">
-                            <div class="logo">DEWA</div>
-                            <div class="user-info">
-                                ${user.photoUrl ? `<img src="${user.photoUrl}" alt="Avatar" class="user-avatar">` : ''}
-                                <span>${user.firstName} ${user.lastName || ''}</span>
-                            </div>
+                    <div class="user-info">
+                        <img src="${user.photoUrl}" alt="${user.firstName}" class="user-avatar">
+                        <div>
+                            <span class="user-name">${user.firstName} ${user.lastName || ''}</span>
+                            <span class="user-tag">Новичок</span>
                         </div>
+                    </div>
+                    <div class="telegram-channel">
+                        <div class="telegram-icon">
+                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.9683 1.68816C15.9557 1.62835 15.9276 1.57342 15.8868 1.5289C15.846 1.48437 15.7939 1.45191 15.7363 1.43545C15.5436 1.40027 15.3456 1.4137 15.1601 1.47449C15.1601 1.47449 1.0516 6.18849 0.26525 6.66499C0.11525 6.74549 0.0376251 6.82383 0.0126251 6.90216C-0.0833749 7.12383 0.122625 7.22816 0.122625 7.22816L3.8176 8.36166C3.8856 8.37733 3.9566 8.37733 4.0246 8.36166C4.56043 8.04 12.4323 3.01383 12.8516 2.87983C12.9331 2.85383 12.9998 2.87983 12.9816 2.941C12.8614 3.42266 5.9176 9.62899 5.8836 9.66616C5.86785 9.68047 5.85679 9.69929 5.85179 9.72016L5.60319 13.3202C5.60319 13.3202 5.47119 14.2 6.41119 13.3202C7.08426 12.6911 7.72692 12.0257 8.3376 11.3252C9.67919 12.2686 11.1389 13.3202 11.7166 13.7866C11.8096 13.8573 11.9176 13.9068 12.0328 13.9317C12.148 13.9567 12.2678 13.9565 12.383 13.9312C12.4981 13.9058 12.606 13.856 12.6986 13.7849C12.7912 13.7139 12.8661 13.6232 12.9176 13.5202C12.9176 13.5202 15.8326 3.16633 15.9716 1.81183C15.9883 1.68944 15.9908 1.56415 15.9788 1.44083C15.9753 1.39063 15.9662 1.34121 15.9516 1.29383L15.9683 1.68816Z" fill="white"/>
+                            </svg>
+                        </div>
+                        <span>@poizonshop</span>
                     </div>
                 </header>
                 
-                <main class="main-content">
-                    <div class="container">
-                        <div class="categories">
-                            ${categories.map(category => 
-                                `<button class="category-button ${category.id === 'all' ? 'active' : ''}" 
-                                         data-category="${category.id}">
-                                    ${category.name}
-                                </button>`
-                            ).join('')}
+                <div class="search-bar">
+                    <div class="search-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="#777"/>
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input" placeholder="Найти кроссовки">
+                </div>
+                
+                <div class="feature-cards">
+                    <div class="feature-card promo">
+                        <p class="feature-title">Зови друзей! +500₽</p>
+                        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/friends-5544636-4629492.png" alt="Friends">
+                    </div>
+                    <div class="feature-card info">
+                        <p class="feature-title">Знакомьтесь, Poizon!</p>
+                        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/gift-box-2872337-2389811.png" alt="Poizon">
+                    </div>
+                    <div class="feature-card unicorn">
+                        <p class="feature-title">Что умеет Unicorn?</p>
+                        <img src="https://cdn-icons-png.flaticon.com/512/2826/2826175.png" alt="Unicorn">
+                    </div>
+                </div>
+                
+                <div class="points-card">
+                    <div class="points-label">Баллы</div>
+                    <div class="points-value">0</div>
+                </div>
+                
+                <div class="action-buttons">
+                    <div class="action-button">
+                        <div>
+                            <div class="action-title">Зови друзей</div>
+                            <div class="action-subtitle">Дарим по <span style="color: var(--secondary-color);">500₽</span> - тебе и приведенному другу</div>
                         </div>
-                        
-                        <div class="products">
-                            ${products.map(product => `
-                                <div class="product-card" data-category="${product.category}">
-                                    <img src="${product.image}" alt="${product.name}" class="product-image">
-                                    <div class="product-details">
-                                        <h3 class="product-title">${product.name}</h3>
-                                        <p class="product-price">${product.price}</p>
-                                        <button class="add-to-cart" data-product-id="${product.id}">
-                                            В корзину
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')}
+                        <div class="action-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 7L13 12L8 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
                     </div>
-                </main>
+                    <div class="action-button primary">
+                        <div>
+                            <div class="action-title">Выбрать и заказать</div>
+                        </div>
+                        <div class="action-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calc-button">
+                    <div class="calc-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4H20V20H4V4Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 9H20M9 20V9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="calc-text">
+                        <div class="calc-title">Рассчитать стоимость товара из Poizon</div>
+                        <div class="calc-description">Узнайте точную цену с доставкой</div>
+                    </div>
+                    <div class="arrow-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 6L15 12L9 18" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="section-header">
+                    <h2 class="section-title">Лукбук 2025</h2>
+                    <span class="see-all">Все →</span>
+                </div>
+                <div class="lookbook">
+                    <div class="lookbook-item">
+                        <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=1000&auto=format&fit=crop" alt="Look 1">
+                    </div>
+                    <div class="lookbook-item">
+                        <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=1000&auto=format&fit=crop" alt="Look 2">
+                    </div>
+                    <div class="lookbook-item">
+                        <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1000&auto=format&fit=crop" alt="Look 3">
+                    </div>
+                </div>
             `;
             
             // Добавляем обработчики событий
@@ -301,57 +536,51 @@
         
         // Настраиваем обработчики событий
         function setupEventListeners(container) {
-            // Обработчик для кнопок категорий
-            const categoryButtons = container.querySelectorAll('.category-button');
-            categoryButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Удаляем класс active у всех кнопок
-                    categoryButtons.forEach(btn => btn.classList.remove('active'));
-                    // Добавляем класс active к нажатой кнопке
-                    button.classList.add('active');
-                    
-                    const selectedCategory = button.dataset.category;
-                    filterProducts(selectedCategory);
+            // Обработчик для поисковой строки
+            const searchInput = container.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('focus', () => {
+                    // Показываем результаты поиска при фокусе
+                    tg.MainButton.show();
+                    tg.MainButton.setText('Искать');
+                });
+                
+                searchInput.addEventListener('blur', () => {
+                    tg.MainButton.hide();
+                });
+                
+                searchInput.addEventListener('input', (e) => {
+                    if (e.target.value) {
+                        tg.MainButton.setText('Искать: ' + e.target.value);
+                    } else {
+                        tg.MainButton.setText('Искать');
+                    }
+                });
+            }
+            
+            // Обработчик для кнопки заказа
+            const orderButton = container.querySelector('.action-button.primary');
+            if (orderButton) {
+                orderButton.addEventListener('click', () => {
+                    tg.showPopup({
+                        title: 'Выбор товаров',
+                        message: 'Переход в каталог товаров',
+                        buttons: [{ type: 'ok' }]
+                    });
+                });
+            }
+            
+            // Обработчик для остальных кнопок
+            const allButtons = container.querySelectorAll('.feature-card, .action-button, .calc-button, .lookbook-item');
+            allButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const type = e.currentTarget.className;
+                    tg.sendData(JSON.stringify({
+                        action: 'button_click',
+                        buttonType: type
+                    }));
                 });
             });
-            
-            // Обработчик для кнопок "В корзину"
-            const addToCartButtons = container.querySelectorAll('.add-to-cart');
-            addToCartButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const productId = button.dataset.productId;
-                    addToCart(productId);
-                });
-            });
-        }
-        
-        // Фильтрация товаров по категории
-        function filterProducts(category) {
-            const productCards = document.querySelectorAll('.product-card');
-            
-            productCards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        // Добавление товара в корзину
-        function addToCart(productId) {
-            // Здесь будет логика добавления в корзину
-            tg.showPopup({
-                title: 'Товар добавлен',
-                message: 'Товар успешно добавлен в корзину',
-                buttons: [{ type: 'ok' }]
-            });
-            
-            // Отправка данных в бота
-            tg.sendData(JSON.stringify({
-                action: 'add_to_cart',
-                productId: productId
-            }));
         }
         
         // Запускаем приложение после загрузки страницы
