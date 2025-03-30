@@ -6,124 +6,356 @@
     <title>DEWA Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #999999;
+            --tg-theme-link-color: #2481cc;
+            --tg-theme-button-color: #2481cc;
+            --tg-theme-button-text-color: #ffffff;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
         }
+        
         .container {
             max-width: 800px;
             margin: 0 auto;
+            padding: 0 15px;
         }
+        
         .header {
-            text-align: center;
-            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            padding: 15px 0;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
         }
-        .header h1 {
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
             color: var(--tg-theme-button-color, #2481cc);
-            font-size: 2.5em;
-            margin-bottom: 10px;
         }
-        .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
         }
-        .product-card {
-            border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-        .product-image {
-            width: 100%;
-            height: 200px;
+        
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
             object-fit: cover;
-            border-radius: 4px;
         }
-        .product-title {
-            margin: 10px 0;
-            font-weight: bold;
+        
+        .main-content {
+            padding: 20px 0;
         }
-        .product-price {
-            color: var(--tg-theme-button-color, #2481cc);
-            font-weight: bold;
-            font-size: 1.2em;
+        
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px 0;
+            margin-bottom: 20px;
         }
-        .buy-button {
+        
+        .category-button {
+            white-space: nowrap;
+            padding: 8px 16px;
             background-color: var(--tg-theme-button-color, #2481cc);
             color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .category-button.active {
+            background-color: var(--tg-theme-link-color, #2481cc);
+        }
+        
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: rgba(var(--tg-theme-bg-color-rgb, 255, 255, 255), 0.5);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+        
+        .product-details {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-title {
+            margin: 0 0 5px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .product-price {
+            margin: 0;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #2481cc);
+            margin-top: auto;
+        }
+        
+        .add-to-cart {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            font-size: 12px;
             cursor: pointer;
             margin-top: 10px;
-            transition: background-color 0.2s;
         }
-        .buy-button:hover {
-            background-color: var(--tg-theme-button-color, #1a6ba3);
+        
+        .auth-required {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .auth-button {
+            padding: 10px 20px;
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>DEWA</h1>
-            <p>Оригинальные товары по лучшим ценам</p>
-        </div>
-        <div class="products">
-            <div class="product-card">
-                <img src="https://via.placeholder.com/200" alt="Товар 1" class="product-image">
-                <h3 class="product-title">Товар 1</h3>
-                <p class="product-price">12,999 ₽</p>
-                <button class="buy-button">Купить</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/200" alt="Товар 2" class="product-image">
-                <h3 class="product-title">Товар 2</h3>
-                <p class="product-price">14,999 ₽</p>
-                <button class="buy-button">Купить</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/200" alt="Товар 3" class="product-image">
-                <h3 class="product-title">Товар 3</h3>
-                <p class="product-price">9,999 ₽</p>
-                <button class="buy-button">Купить</button>
-            </div>
-        </div>
+    <div id="app">
+        <div class="loader">Загрузка...</div>
     </div>
+
     <script>
-        let tg = window.Telegram.WebApp;
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
         tg.expand();
+        
+        // Применяем стили Telegram
+        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor);
+        document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor);
+        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.hint_color || '#999999');
+        document.documentElement.style.setProperty('--tg-theme-link-color', tg.linkColor);
+        document.documentElement.style.setProperty('--tg-theme-button-color', tg.buttonColor);
+        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.buttonTextColor);
 
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            // Применяем тему Telegram
-            document.body.style.backgroundColor = tg.backgroundColor;
-            document.body.style.color = tg.textColor;
-        });
-
-        // Обработка нажатий на кнопки
-        document.querySelectorAll('.buy-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const product = this.closest('.product-card');
-                const title = product.querySelector('.product-title').textContent;
-                const price = product.querySelector('.product-price').textContent;
+        // Проверяем авторизацию через Telegram
+        function checkAuth() {
+            // Проверяем, есть ли данные пользователя в initData
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                return {
+                    authorized: true,
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        firstName: user.first_name,
+                        lastName: user.last_name,
+                        photoUrl: user.photo_url
+                    }
+                };
+            }
+            
+            return { authorized: false };
+        }
+        
+        // Загружаем приложение
+        function loadApp() {
+            const appElement = document.getElementById('app');
+            const authData = checkAuth();
+            
+            if (authData.authorized) {
+                // Пользователь авторизован, показываем магазин
+                renderStore(appElement, authData.user);
+            } else {
+                // Пользователь не авторизован
+                renderAuthScreen(appElement);
+            }
+        }
+        
+        // Рендерим экран авторизации
+        function renderAuthScreen(container) {
+            container.innerHTML = `
+                <div class="auth-required">
+                    <h2>Требуется авторизация</h2>
+                    <p>Для доступа к магазину необходимо открыть приложение через Telegram.</p>
+                </div>
+            `;
+        }
+        
+        // Рендерим магазин
+        function renderStore(container, user) {
+            // Демо-данные для категорий
+            const categories = [
+                { id: 'all', name: 'Все' },
+                { id: 'shoes', name: 'Обувь' },
+                { id: 'clothes', name: 'Одежда' },
+                { id: 'accessories', name: 'Аксессуары' }
+            ];
+            
+            // Демо-данные для товаров
+            const products = [
+                { id: 1, name: 'Кроссовки Nike Air Max', price: '12,999 ₽', image: 'https://via.placeholder.com/200', category: 'shoes' },
+                { id: 2, name: 'Кроссовки Adidas Ultra Boost', price: '14,999 ₽', image: 'https://via.placeholder.com/200', category: 'shoes' },
+                { id: 3, name: 'Футболка Puma', price: '2,999 ₽', image: 'https://via.placeholder.com/200', category: 'clothes' },
+                { id: 4, name: 'Кепка Nike', price: '1,899 ₽', image: 'https://via.placeholder.com/200', category: 'accessories' },
+                { id: 5, name: 'Джинсы Levi\'s', price: '7,999 ₽', image: 'https://via.placeholder.com/200', category: 'clothes' },
+                { id: 6, name: 'Рюкзак Adidas', price: '4,599 ₽', image: 'https://via.placeholder.com/200', category: 'accessories' }
+            ];
+            
+            // Создаем HTML структуру магазина
+            container.innerHTML = `
+                <header class="header">
+                    <div class="container">
+                        <div class="header-content">
+                            <div class="logo">DEWA</div>
+                            <div class="user-info">
+                                ${user.photoUrl ? `<img src="${user.photoUrl}" alt="Avatar" class="user-avatar">` : ''}
+                                <span>${user.firstName} ${user.lastName || ''}</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
                 
-                // Отправляем данные в бота
-                tg.sendData(JSON.stringify({
-                    action: 'buy',
-                    product: title,
-                    price: price
-                }));
+                <main class="main-content">
+                    <div class="container">
+                        <div class="categories">
+                            ${categories.map(category => 
+                                `<button class="category-button ${category.id === 'all' ? 'active' : ''}" 
+                                         data-category="${category.id}">
+                                    ${category.name}
+                                </button>`
+                            ).join('')}
+                        </div>
+                        
+                        <div class="products">
+                            ${products.map(product => `
+                                <div class="product-card" data-category="${product.category}">
+                                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                                    <div class="product-details">
+                                        <h3 class="product-title">${product.name}</h3>
+                                        <p class="product-price">${product.price}</p>
+                                        <button class="add-to-cart" data-product-id="${product.id}">
+                                            В корзину
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </main>
+            `;
+            
+            // Добавляем обработчики событий
+            setupEventListeners(container);
+        }
+        
+        // Настраиваем обработчики событий
+        function setupEventListeners(container) {
+            // Обработчик для кнопок категорий
+            const categoryButtons = container.querySelectorAll('.category-button');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Удаляем класс active у всех кнопок
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    // Добавляем класс active к нажатой кнопке
+                    button.classList.add('active');
+                    
+                    const selectedCategory = button.dataset.category;
+                    filterProducts(selectedCategory);
+                });
             });
-        });
+            
+            // Обработчик для кнопок "В корзину"
+            const addToCartButtons = container.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = button.dataset.productId;
+                    addToCart(productId);
+                });
+            });
+        }
+        
+        // Фильтрация товаров по категории
+        function filterProducts(category) {
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Добавление товара в корзину
+        function addToCart(productId) {
+            // Здесь будет логика добавления в корзину
+            tg.showPopup({
+                title: 'Товар добавлен',
+                message: 'Товар успешно добавлен в корзину',
+                buttons: [{ type: 'ok' }]
+            });
+            
+            // Отправка данных в бота
+            tg.sendData(JSON.stringify({
+                action: 'add_to_cart',
+                productId: productId
+            }));
+        }
+        
+        // Запускаем приложение после загрузки страницы
+        document.addEventListener('DOMContentLoaded', loadApp);
     </script>
 </body>
 </html> 
