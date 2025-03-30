@@ -1,7 +1,7 @@
 import os
 import logging
 from dotenv import load_dotenv
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup, MenuButtonWebApp
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # Загрузка переменных окружения
@@ -19,6 +19,16 @@ TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 # URL вашего веб-приложения
 WEBAPP_URL = "https://dewa-1gdh.onrender.com"  # URL на Render.com
+
+async def set_menu_button(application):
+    """Устанавливает кнопку меню для всех пользователей бота"""
+    try:
+        await application.bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
+        )
+        logger.info("Menu button set successfully")
+    except Exception as e:
+        logger.error(f"Error setting menu button: {e}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /start"""
@@ -53,6 +63,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Используйте кнопку ниже для быстрого доступа к приложению:",
             reply_markup=reply_markup
         )
+        
+        # Устанавливаем menu button для пользователя
+        try:
+            await context.bot.set_chat_menu_button(
+                chat_id=update.effective_chat.id,
+                menu_button=MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
+            )
+        except Exception as e:
+            logger.error(f"Error setting menu button for user: {e}")
         
         logger.info(f"User {update.effective_user.id} started the bot")
     except Exception as e:
@@ -174,6 +193,9 @@ def main():
         application.add_handler(CommandHandler("openapp", open_app))
         application.add_handler(CallbackQueryHandler(button_handler))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        # Устанавливаем кнопку меню при запуске бота
+        application.post_init = set_menu_button
 
         # Запускаем бота
         logger.info("Starting bot...")
