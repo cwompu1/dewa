@@ -1,7 +1,7 @@
 import os
 import logging
 from dotenv import load_dotenv
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # Загрузка переменных окружения
@@ -32,27 +32,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [
                 InlineKeyboardButton("👜 Аксессуары", callback_data='category_accessories'),
                 InlineKeyboardButton("🛒 Корзина", callback_data='cart')
+            ],
+            [
+                InlineKeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))
             ]
         ]
-        inline_markup = InlineKeyboardMarkup(inline_keyboard)
+        reply_markup = InlineKeyboardMarkup(inline_keyboard)
         
-        # Создаем основную клавиатуру с кнопкой веб-приложения
-        keyboard = [
-            [KeyboardButton("🌐 Открыть приложение", web_app=WebAppInfo(url=WEBAPP_URL))]
-        ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        
-        # Отправляем приветственное сообщение с двумя типами клавиатур
+        # Отправляем приветственное сообщение с inline клавиатурой
         await update.message.reply_text(
             "👋 Добро пожаловать в наш магазин!\n\n"
             "Здесь вы найдете оригинальные товары по самым выгодным ценам.\n\n"
-            "Выберите категорию товаров:",
-            reply_markup=inline_markup
-        )
-        
-        # Отправляем основную клавиатуру отдельным сообщением
-        await update.message.reply_text(
-            "Используйте кнопку ниже для быстрого доступа к приложению:",
+            "Выберите категорию товаров или откройте приложение:",
             reply_markup=reply_markup
         )
         
@@ -64,11 +55,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def open_app(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /openapp"""
     try:
-        # Создаем основную клавиатуру с кнопкой веб-приложения
         keyboard = [
-            [KeyboardButton("🌐 Открыть приложение", web_app=WebAppInfo(url=WEBAPP_URL))]
+            [InlineKeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]
         ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
             "Нажмите кнопку ниже, чтобы открыть приложение:", 
@@ -82,6 +72,7 @@ async def open_app(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /help"""
     try:
+        # Сначала отправляем текст справки
         await update.message.reply_text(
             "Доступные команды:\n"
             "/start - Начать работу с ботом\n"
@@ -90,11 +81,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "/openapp - Открыть веб-приложение"
         )
         
-        # Добавляем основную клавиатуру с кнопкой приложения
+        # Затем отправляем кнопку для открытия приложения
         keyboard = [
-            [KeyboardButton("🌐 Открыть приложение", web_app=WebAppInfo(url=WEBAPP_URL))]
+            [InlineKeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]
         ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
             "Или используйте кнопку ниже:",
@@ -114,11 +105,14 @@ async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [
                 InlineKeyboardButton("👜 Аксессуары", callback_data='category_accessories'),
                 InlineKeyboardButton("🛒 Корзина", callback_data='cart')
+            ],
+            [
+                InlineKeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))
             ]
         ]
-        inline_markup = InlineKeyboardMarkup(inline_keyboard)
+        reply_markup = InlineKeyboardMarkup(inline_keyboard)
         
-        await update.message.reply_text("Выберите категорию товаров:", reply_markup=inline_markup)
+        await update.message.reply_text("Выберите категорию товаров:", reply_markup=reply_markup)
     except Exception as e:
         logger.error(f"Error in catalog command: {e}")
 
@@ -146,7 +140,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif text == 'open app':
             await open_app(update, context)
         else:
-            await update.message.reply_text("Используйте /start для начала работы с ботом или /help для просмотра доступных команд.")
+            keyboard = [
+                [InlineKeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await update.message.reply_text(
+                "Используйте /start для начала работы с ботом или /help для просмотра доступных команд.",
+                reply_markup=reply_markup
+            )
     except Exception as e:
         logger.error(f"Error in message handler: {e}")
 
