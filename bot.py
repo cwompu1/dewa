@@ -1,7 +1,7 @@
 import os
 import logging
 from dotenv import load_dotenv
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup, MenuButtonWebApp
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup, MenuButtonWebApp, BotCommand
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # Загрузка переменных окружения
@@ -20,12 +20,23 @@ TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 # URL вашего веб-приложения
 WEBAPP_URL = "https://dewa-1gdh.onrender.com"  # URL на Render.com
 
-async def set_menu_button(application):
-    """Устанавливает кнопку меню для всех пользователей бота"""
+async def setup_commands_and_menu(application):
+    """Устанавливает команды и меню бота при старте"""
+    commands = [
+        BotCommand("start", "Начать работу с ботом"),
+        BotCommand("help", "Показать справку"),
+        BotCommand("catalog", "Показать каталог товаров"),
+        BotCommand("openapp", "Открыть веб-приложение")
+    ]
+    
+    # Установка команд бота
+    await application.bot.set_my_commands(commands)
+    logger.info("Bot commands set successfully")
+    
+    # Установка кнопки меню
     try:
-        await application.bot.set_chat_menu_button(
-            menu_button=MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
-        )
+        menu_button = MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
+        await application.bot.set_chat_menu_button(menu_button=menu_button)
         logger.info("Menu button set successfully")
     except Exception as e:
         logger.error(f"Error setting menu button: {e}")
@@ -64,11 +75,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=reply_markup
         )
         
-        # Устанавливаем menu button для пользователя
+        # Повторная установка кнопки меню для конкретного пользователя
         try:
+            menu_button = MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
             await context.bot.set_chat_menu_button(
                 chat_id=update.effective_chat.id,
-                menu_button=MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
+                menu_button=menu_button
             )
         except Exception as e:
             logger.error(f"Error setting menu button for user: {e}")
@@ -184,22 +196,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     """Основная функция запуска бота"""
     try:
-        application = Application.builder().token(TOKEN).build()
+        # Инициализируем приложение
+        app = Application.builder().token(TOKEN).build()
 
         # Добавляем обработчики
-        application.add_handler(CommandHandler("start", start))
-        application.add_handler(CommandHandler("help", help_command))
-        application.add_handler(CommandHandler("catalog", catalog_command))
-        application.add_handler(CommandHandler("openapp", open_app))
-        application.add_handler(CallbackQueryHandler(button_handler))
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("help", help_command))
+        app.add_handler(CommandHandler("catalog", catalog_command))
+        app.add_handler(CommandHandler("openapp", open_app))
+        app.add_handler(CallbackQueryHandler(button_handler))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
-        # Устанавливаем кнопку меню при запуске бота
-        application.post_init = set_menu_button
-
+        # Устанавливаем функцию настройки при старте
+        app.post_init = setup_commands_and_menu
+        
         # Запускаем бота
         logger.info("Starting bot...")
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
     except Exception as e:
         logger.error(f"Error in main: {e}")
 
