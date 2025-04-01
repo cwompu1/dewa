@@ -28,22 +28,24 @@ logger.info(f"Bot token: {TOKEN[:20]}...")  # Логируем часть ток
 WEBAPP_URL = os.getenv('WEBAPP_URL', "https://dewa-1gdh.onrender.com")
 logger.info(f"WebApp URL: {WEBAPP_URL}")
 
+def create_main_keyboard():
+    keyboard = [
+        [KeyboardButton('🛍 Открыть приложение')],
+        [KeyboardButton('👨‍💼 Админ-панель')]
+    ]
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /start"""
     try:
         logger.info(f"Start command received from user {update.effective_user.id}")
         
-        keyboard = [
-            [KeyboardButton("🛍 Открыть магазин", web_app=WebAppInfo(url=WEBAPP_URL))],
-            [KeyboardButton("📱 Каталог"), KeyboardButton("ℹ️ Помощь")],
-            [KeyboardButton("👤 Профиль"), KeyboardButton("🛒 Корзина")]
-        ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        keyboard = create_main_keyboard()
         
         await update.message.reply_text(
             "Добро пожаловать в Diwa store! 🎉\n"
             "Выберите действие из меню ниже:",
-            reply_markup=reply_markup
+            reply_markup=keyboard
         )
         logger.info("Start command processed successfully")
         
@@ -153,10 +155,52 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Функция профиля в разработке")
         elif update.message.text == "🛒 Корзина":
             await update.message.reply_text("Функция корзины в разработке")
+        elif update.message.text == "👨‍💼 Админ-панель":
+            await admin_panel(update, context)
         logger.info("Message processed successfully")
     except Exception as e:
         logger.error(f"Error in message handler: {e}", exc_info=True)
         await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
+
+async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработчик команды админ-панели"""
+    try:
+        logger.info(f"Admin command received from user {update.effective_user.id}")
+        user_id = update.effective_user.id
+        username = update.effective_user.username
+        
+        logger.info(f"Checking admin access for user_id: {user_id}, username: {username}")
+        
+        if is_admin(user_id, username):
+            logger.info("Admin access granted")
+            admin_url = "https://cwompu1.github.io/dewa/"
+            keyboard = [[InlineKeyboardButton(
+                text="🔐 Открыть админ-панель",
+                url=admin_url
+            )]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text(
+                "Добро пожаловать в панель администратора! 👋\n"
+                "Нажмите на кнопку ниже, чтобы открыть панель управления:",
+                reply_markup=reply_markup
+            )
+            logger.info("Admin panel link sent successfully")
+        else:
+            logger.warning(f"Admin access denied for user_id: {user_id}, username: {username}")
+            await update.message.reply_text("⛔️ У вас нет доступа к админ-панели.")
+    except Exception as e:
+        logger.error(f"Error in admin command: {e}", exc_info=True)
+        await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
+
+def is_admin(user_id, username=None):
+    # Список ID администраторов
+    admin_ids = [307233318]  # Ваш Telegram ID
+    # Список username администраторов
+    admin_usernames = ['gafurrovvv']
+    
+    if username and username.lower() in [u.lower() for u in admin_usernames]:
+        return True
+    return user_id in admin_ids
 
 def main():
     """Основная функция запуска бота"""
