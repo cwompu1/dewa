@@ -729,11 +729,19 @@
         
         // Настраиваем обработчики событий
         function setupEventListeners(container) {
-            // Обработчик для поисковой строки
+            // Добавляем обработчик для перехода в профиль
+            const userInfo = container.querySelector('.user-info');
+            if (userInfo) {
+                userInfo.addEventListener('click', () => {
+                    const authData = checkAuth();
+                    renderProfilePage(container, authData.user);
+                });
+            }
+
+            // Остальные обработчики событий
             const searchInput = container.querySelector('.search-input');
             if (searchInput) {
                 searchInput.addEventListener('focus', () => {
-                    // Показываем результаты поиска при фокусе
                     tg.MainButton.show();
                     tg.MainButton.setText('Искать');
                 });
@@ -908,6 +916,23 @@
             // ... existing code ...
             checkAdminAccess();
         });
+
+        // Добавляем функции для кнопок в профиле
+        function showOrders() {
+            tg.showPopup({
+                title: 'Мои заказы',
+                message: 'История заказов пока пуста',
+                buttons: [{ type: 'ok' }]
+            });
+        }
+
+        function showSettings() {
+            tg.showPopup({
+                title: 'Настройки',
+                message: 'Раздел находится в разработке',
+                buttons: [{ type: 'ok' }]
+            });
+        }
     </script>
 </body>
 </html> 
