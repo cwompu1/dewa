@@ -3,6 +3,9 @@ import logging
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup, MenuButtonWebApp, BotCommand
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+from handlers.admin import setup_admin_handlers
+from models.admin import Admin
+from database import db
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -196,8 +199,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     """Основная функция запуска бота"""
     try:
-        # Инициализируем приложение
-        app = Application.builder().token(TOKEN).build()
+        # Инициализация базы данных и создание superadmin
+        db.create_all()
+        Admin.init_superadmin()
+        
+        # Создание и настройка бота
+        application = Application.builder().token(TOKEN).build()
 
         # Добавляем обработчики
         app.add_handler(CommandHandler("start", start))
@@ -209,6 +216,9 @@ def main():
         
         # Устанавливаем функцию настройки при старте
         app.post_init = setup_commands_and_menu
+        
+        # Регистрация админ-хендлеров
+        setup_admin_handlers(application)
         
         # Запускаем бота
         logger.info("Starting bot...")
