@@ -930,7 +930,8 @@
         }
 
         function openAdminPanel() {
-            window.open('https://cwompu1.github.io/dewa/admin/', '_blank');
+            const adminUrl = window.location.origin + '/dewa/admin/index.html';
+            window.open(adminUrl, '_blank');
         }
 
         // Добавляем вызов проверки админа при загрузке профиля
