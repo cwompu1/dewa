@@ -781,6 +781,12 @@
 
         // Рендерим страницу профиля
         function renderProfilePage(container, user) {
+            // Проверяем, является ли пользователь администратором
+            const adminIds = [307233318];
+            const adminUsernames = ['gafurrovvv'];
+            const isAdmin = adminIds.includes(user.id) || 
+                           (user.username && adminUsernames.includes(user.username.toLowerCase()));
+            
             container.innerHTML = `
                 <div class="app-wrapper">
                     <div class="profile-page">
@@ -793,18 +799,20 @@
                             <h1 class="profile-title">Профиль</h1>
                         </div>
                         
-                        <div class="profile-section" id="profileSection" style="display: none;">
+                        <div class="profile-section">
                             <div class="profile-header">
-                                <img src="${user.photoUrl}" alt="Profile Photo" id="userProfilePhoto" class="profile-photo">
-                                <h2 id="userFullName">${user.firstName} ${user.lastName || ''}</h2>
-                                <p id="userUsername">@${user.username || 'не указан'}</p>
+                                <img src="${user.photoUrl}" alt="Profile Photo" class="profile-photo">
+                                <h2>${user.firstName} ${user.lastName || ''}</h2>
+                                <p>@${user.username || 'не указан'}</p>
                             </div>
                             <div class="profile-actions">
                                 <button class="btn btn-primary" onclick="showOrders()">Мои заказы</button>
                                 <button class="btn btn-primary" onclick="showSettings()">Настройки</button>
-                                <button class="btn btn-admin" id="adminButton" onclick="openAdminPanel()" style="display: none;">
-                                    👨‍💼 Админ-панель
-                                </button>
+                                ${isAdmin ? `
+                                    <button class="btn btn-admin" onclick="openAdminPanel()">
+                                        👨‍💼 Админ-панель
+                                    </button>
+                                ` : ''}
                             </div>
                         </div>
                         
@@ -853,7 +861,12 @@
                 </div>
             `;
             
-            // Добавляем обработчик для кнопки "Назад"
+            // Добавляем обработчики событий
+            setupProfileEventListeners(container, user);
+        }
+        
+        function setupProfileEventListeners(container, user) {
+            // Обработчик для кнопки "Назад"
             const backButton = container.querySelector('#backButton');
             if (backButton) {
                 backButton.addEventListener('click', () => {
@@ -861,73 +874,13 @@
                 });
             }
             
-            // Добавляем обработчики для кнопок редактирования
-            const editButtons = container.querySelectorAll('.edit-button');
-            editButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const fieldType = e.target.closest('.profile-field').querySelector('.field-label').textContent;
-                    tg.showPopup({
-                        title: `Изменить ${fieldType.toLowerCase()}`,
-                        message: 'Эта функция будет доступна в ближайшее время',
-                        buttons: [{ type: 'ok' }]
-                    });
-                });
-            });
-        }
-        
-        // Обновляем setupEventListeners
-        function setupEventListeners(container) {
-            // Добавляем обработчик для перехода в профиль
-            const userInfo = container.querySelector('.user-info');
-            if (userInfo) {
-                userInfo.addEventListener('click', () => {
-                    const authData = checkAuth();
-                    renderProfilePage(container, authData.user);
+            // Обработчик для кнопки админ-панели
+            const adminButton = container.querySelector('.btn-admin');
+            if (adminButton) {
+                adminButton.addEventListener('click', () => {
+                    window.open('https://cwompu1.github.io/dewa/', '_blank');
                 });
             }
-            
-            // Существующие обработчики событий
-            const searchInput = container.querySelector('.search-input');
-            if (searchInput) {
-                searchInput.addEventListener('focus', () => {
-                    tg.MainButton.show();
-                    tg.MainButton.setText('Искать');
-                });
-                
-                searchInput.addEventListener('blur', () => {
-                    tg.MainButton.hide();
-                });
-                
-                searchInput.addEventListener('input', (e) => {
-                    if (e.target.value) {
-                        tg.MainButton.setText('Искать: ' + e.target.value);
-                    } else {
-                        tg.MainButton.setText('Искать');
-                    }
-                });
-            }
-            
-            const orderButton = container.querySelector('.action-button.primary');
-            if (orderButton) {
-                orderButton.addEventListener('click', () => {
-                    tg.showPopup({
-                        title: 'Выбор товаров',
-                        message: 'Переход в каталог товаров',
-                        buttons: [{ type: 'ok' }]
-                    });
-                });
-            }
-            
-            const allButtons = container.querySelectorAll('.feature-card, .action-button, .calc-button, .lookbook-item');
-            allButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const type = e.currentTarget.className;
-                    tg.sendData(JSON.stringify({
-                        action: 'button_click',
-                        buttonType: type
-                    }));
-                });
-            });
         }
 
         function checkAdminAccess() {
