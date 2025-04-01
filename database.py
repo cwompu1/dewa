@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+import os
 
 Base = declarative_base()
 
@@ -34,10 +37,28 @@ class CartItem(Base):
     user = relationship("User", back_populates="cart")
     product = relationship("Product")
 
-# Создание подключения к базе данных
-engine = create_engine('sqlite:///shop.db')
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+# Создаем приложение Flask
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bot.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_BINDS'] = {
+    'shop': 'sqlite:///shop.db'
+}
+
+# Инициализируем SQLAlchemy
+db = SQLAlchemy(app)
+
+def init_db():
+    """Инициализация базы данных"""
+    with app.app_context():
+        db.create_all()
+        from models.admin import Admin
+        Admin.init_superadmin()
 
 def get_session():
-    return Session() 
+    return Session()
+
+def init_db():
+    """Инициализация базы данных"""
+    with app.app_context():
+        db.create_all() 

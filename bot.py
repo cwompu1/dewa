@@ -5,7 +5,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from handlers.admin import setup_admin_handlers
 from models.admin import Admin
-from database import db
+from database import db, app, init_db
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -18,10 +18,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Получение токена бота
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+TOKEN = os.getenv('BOT_TOKEN')
 
 # URL вашего веб-приложения
-WEBAPP_URL = "https://dewa-1gdh.onrender.com"  # URL на Render.com
+WEBAPP_URL = "https://dewa-1gdh.onrender.com"
 
 async def setup_commands_and_menu(application):
     """Устанавливает команды и меню бота при старте"""
@@ -200,30 +200,30 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     """Основная функция запуска бота"""
     try:
-        # Инициализация базы данных и создание superadmin
-        db.create_all()
-        Admin.init_superadmin()
-        
-        # Создание и настройка бота
-        application = Application.builder().token(TOKEN).build()
-
-        # Добавляем обработчики
-        application.add_handler(CommandHandler("start", start))
-        application.add_handler(CommandHandler("help", help_command))
-        application.add_handler(CommandHandler("catalog", catalog_command))
-        application.add_handler(CommandHandler("openapp", open_app))
-        application.add_handler(CallbackQueryHandler(button_handler))
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        
-        # Устанавливаем функцию настройки при старте
-        application.post_init = setup_commands_and_menu
-        
-        # Регистрация админ-хендлеров
-        setup_admin_handlers(application)
-        
-        # Запускаем бота
-        logger.info("Starting bot...")
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        # Инициализация базы данных внутри контекста приложения
+        with app.app_context():
+            init_db()
+            
+            # Создание и настройка бота
+            application = Application.builder().token(TOKEN).build()
+            
+            # Добавляем обработчики
+            application.add_handler(CommandHandler("start", start))
+            application.add_handler(CommandHandler("help", help_command))
+            application.add_handler(CommandHandler("catalog", catalog_command))
+            application.add_handler(CommandHandler("openapp", open_app))
+            application.add_handler(CallbackQueryHandler(button_handler))
+            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+            
+            # Устанавливаем функцию настройки при старте
+            application.post_init = setup_commands_and_menu
+            
+            # Регистрация админ-хендлеров
+            setup_admin_handlers(application)
+            
+            # Запускаем бота
+            logger.info("Starting bot...")
+            application.run_polling(allowed_updates=Update.ALL_TYPES)
     except Exception as e:
         logger.error(f"Error in main: {e}")
 
