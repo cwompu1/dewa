@@ -79,23 +79,71 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
             elif action == "admin_stats":
                 # Показываем статистику
-                text = "📊 Статистика:\n\n"
-                text += "Функция в разработке"
+                from models.user import User
+                from models.order import Order
+                
+                users_count = User.query.count()
+                orders_count = Order.query.count()
+                total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
+                
+                text = "📊 Статистика магазина:\n\n"
+                text += f"👥 Пользователей: {users_count}\n"
+                text += f"📦 Заказов: {orders_count}\n"
+                text += f"💰 Общая выручка: {total_revenue:,.2f} ₽\n\n"
+                
+                # Статистика за последние 7 дней
+                from datetime import datetime, timedelta
+                week_ago = datetime.utcnow() - timedelta(days=7)
+                new_users = User.query.filter(User.created_at >= week_ago).count()
+                new_orders = Order.query.filter(Order.created_at >= week_ago).count()
+                
+                text += "За последние 7 дней:\n"
+                text += f"👥 Новых пользователей: {new_users}\n"
+                text += f"📦 Новых заказов: {new_orders}"
+                
                 keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data="admin_back")]]
                 await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
                 
             elif action == "admin_users":
                 # Показываем управление пользователями
+                from models.user import User
+                
+                # Получаем последних 5 пользователей
+                recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+                
                 text = "👥 Управление пользователями:\n\n"
-                text += "Функция в разработке"
-                keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data="admin_back")]]
+                text += "Последние пользователи:\n"
+                for user in recent_users:
+                    text += f"• {user.username} (ID: {user.telegram_id})\n"
+                    text += f"  Регистрация: {user.created_at.strftime('%d.%m.%Y')}\n"
+                
+                keyboard = [
+                    [InlineKeyboardButton("🔍 Поиск пользователя", callback_data="user_search")],
+                    [InlineKeyboardButton("📊 Подробная статистика", callback_data="user_stats")],
+                    [InlineKeyboardButton("🔙 Назад", callback_data="admin_back")]
+                ]
                 await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
                 
             elif action == "admin_orders":
                 # Показываем управление заказами
+                from models.order import Order
+                
+                # Получаем последние 5 заказов
+                recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
+                
                 text = "📦 Управление заказами:\n\n"
-                text += "Функция в разработке"
-                keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data="admin_back")]]
+                text += "Последние заказы:\n"
+                for order in recent_orders:
+                    text += f"• Заказ #{order.id}\n"
+                    text += f"  Статус: {order.status}\n"
+                    text += f"  Сумма: {order.total_amount:,.2f} ₽\n"
+                    text += f"  Дата: {order.created_at.strftime('%d.%m.%Y %H:%M')}\n\n"
+                
+                keyboard = [
+                    [InlineKeyboardButton("🔍 Поиск заказа", callback_data="order_search")],
+                    [InlineKeyboardButton("📊 Статистика заказов", callback_data="order_stats")],
+                    [InlineKeyboardButton("🔙 Назад", callback_data="admin_back")]
+                ]
                 await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
                 
             elif action == "admin_back":

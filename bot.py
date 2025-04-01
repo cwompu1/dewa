@@ -13,199 +13,170 @@ load_dotenv()
 # Настройка логирования
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.DEBUG  # Изменено на DEBUG для более подробного логирования
 )
 logger = logging.getLogger(__name__)
 
 # Получение токена бота
 TOKEN = os.getenv('BOT_TOKEN')
+if not TOKEN:
+    raise ValueError("No BOT_TOKEN found in environment variables!")
+
+logger.info(f"Bot token: {TOKEN[:20]}...")  # Логируем часть токена для проверки
 
 # URL вашего веб-приложения
-WEBAPP_URL = "https://dewa-1gdh.onrender.com"
-
-async def setup_commands_and_menu(application):
-    """Устанавливает команды и меню бота при старте"""
-    commands = [
-        BotCommand("start", "Начать работу с ботом"),
-        BotCommand("help", "Показать справку"),
-        BotCommand("catalog", "Показать каталог товаров"),
-        BotCommand("openapp", "Открыть веб-приложение"),
-        BotCommand("admin", "Панель администратора")
-    ]
-    
-    # Установка команд бота
-    await application.bot.set_my_commands(commands)
-    logger.info("Bot commands set successfully")
-    
-    # Установка кнопки меню
-    try:
-        menu_button = MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
-        await application.bot.set_chat_menu_button(menu_button=menu_button)
-        logger.info("Menu button set successfully")
-    except Exception as e:
-        logger.error(f"Error setting menu button: {e}")
+WEBAPP_URL = os.getenv('WEBAPP_URL', "https://dewa-1gdh.onrender.com")
+logger.info(f"WebApp URL: {WEBAPP_URL}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /start"""
     try:
-        # Создаем inline клавиатуру для категорий
-        inline_keyboard = [
-            [
-                InlineKeyboardButton("👟 Обувь", callback_data='category_shoes'),
-                InlineKeyboardButton("👕 Одежда", callback_data='category_clothes')
-            ],
-            [
-                InlineKeyboardButton("👜 Аксессуары", callback_data='category_accessories'),
-                InlineKeyboardButton("🛒 Корзина", callback_data='cart')
-            ]
-        ]
-        inline_markup = InlineKeyboardMarkup(inline_keyboard)
+        logger.info(f"Start command received from user {update.effective_user.id}")
         
-        # Создаем клавиатуру с кнопкой веб-приложения внизу экрана
-        keyboard = [[KeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]]
+        keyboard = [
+            [KeyboardButton("🛍 Открыть магазин", web_app=WebAppInfo(url=WEBAPP_URL))],
+            [KeyboardButton("📱 Каталог"), KeyboardButton("ℹ️ Помощь")],
+            [KeyboardButton("👤 Профиль"), KeyboardButton("🛒 Корзина")]
+        ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         
-        # Отправляем приветственное сообщение с inline клавиатурой
         await update.message.reply_text(
-            "👋 Добро пожаловать в наш магазин!\n\n"
-            "Здесь вы найдете оригинальные товары по самым выгодным ценам.\n\n"
-            "Выберите категорию товаров:",
-            reply_markup=inline_markup
-        )
-        
-        # Устанавливаем клавиатуру с кнопкой веб-приложения
-        await update.message.reply_text(
-            "Используйте кнопку ниже для быстрого доступа к приложению:",
+            "Добро пожаловать в Diwa store! 🎉\n"
+            "Выберите действие из меню ниже:",
             reply_markup=reply_markup
         )
+        logger.info("Start command processed successfully")
         
-        # Повторная установка кнопки меню для конкретного пользователя
-        try:
-            menu_button = MenuButtonWebApp(text="ОТКРЫТЬ", web_app=WebAppInfo(url=WEBAPP_URL))
-            await context.bot.set_chat_menu_button(
-                chat_id=update.effective_chat.id,
-                menu_button=menu_button
-            )
-        except Exception as e:
-            logger.error(f"Error setting menu button for user: {e}")
-        
-        logger.info(f"User {update.effective_user.id} started the bot")
     except Exception as e:
-        logger.error(f"Error in start command: {e}")
+        logger.error(f"Error in start command: {e}", exc_info=True)
         await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
+
+async def setup_commands_and_menu(application):
+    """Настройка команд и меню бота"""
+    try:
+        logger.info("Setting up commands and menu...")
+        commands = [
+            BotCommand("start", "🚀 Запустить бота"),
+            BotCommand("help", "ℹ️ Помощь"),
+            BotCommand("catalog", "📱 Каталог товаров"),
+            BotCommand("admin", "⚙️ Панель администратора"),
+            BotCommand("openapp", "🛍 Открыть магазин")
+        ]
+        
+        await application.bot.set_my_commands(commands)
+        await application.bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(text="Открыть магазин", web_app=WebAppInfo(url=WEBAPP_URL))
+        )
+        logger.info("Commands and menu setup completed")
+        
+    except Exception as e:
+        logger.error(f"Error setting up commands and menu: {e}", exc_info=True)
 
 async def open_app(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /openapp"""
     try:
-        # Создаем клавиатуру с кнопкой веб-приложения внизу экрана
-        keyboard = [[KeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]]
+        logger.info(f"OpenApp command received from user {update.effective_user.id}")
+        keyboard = [[KeyboardButton("🛍 Открыть магазин", web_app=WebAppInfo(url=WEBAPP_URL))]]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        
         await update.message.reply_text(
-            "Нажмите кнопку ниже, чтобы открыть приложение:", 
+            "Нажмите кнопку ниже, чтобы открыть магазин:",
             reply_markup=reply_markup
         )
-        logger.info(f"User {update.effective_user.id} requested to open app")
+        logger.info("OpenApp command processed successfully")
     except Exception as e:
-        logger.error(f"Error in open_app command: {e}")
+        logger.error(f"Error in openapp command: {e}", exc_info=True)
         await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /help"""
     try:
-        # Сначала отправляем текст справки
+        logger.info(f"Help command received from user {update.effective_user.id}")
         await update.message.reply_text(
-            "Доступные команды:\n"
-            "/start - Начать работу с ботом\n"
+            "🤖 Список доступных команд:\n\n"
+            "/start - Запустить бота\n"
             "/help - Показать это сообщение\n"
-            "/catalog - Показать каталог товаров\n"
-            "/openapp - Открыть веб-приложение"
+            "/catalog - Просмотр каталога\n"
+            "/openapp - Открыть веб-приложение\n"
+            "/admin - Панель администратора (если у вас есть доступ)\n\n"
+            "Также вы можете использовать кнопки меню для навигации."
         )
-        
-        # Создаем клавиатуру с кнопкой веб-приложения внизу экрана
-        keyboard = [[KeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        
-        await update.message.reply_text(
-            "Или используйте кнопку ниже:",
-            reply_markup=reply_markup
-        )
+        logger.info("Help command processed successfully")
     except Exception as e:
-        logger.error(f"Error in help command: {e}")
+        logger.error(f"Error in help command: {e}", exc_info=True)
+        await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
 
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /catalog"""
     try:
-        inline_keyboard = [
-            [
-                InlineKeyboardButton("👟 Обувь", callback_data='category_shoes'),
-                InlineKeyboardButton("👕 Одежда", callback_data='category_clothes')
-            ],
-            [
-                InlineKeyboardButton("👜 Аксессуары", callback_data='category_accessories'),
-                InlineKeyboardButton("🛒 Корзина", callback_data='cart')
-            ]
+        logger.info(f"Catalog command received from user {update.effective_user.id}")
+        keyboard = [
+            [InlineKeyboardButton("👟 Обувь", callback_data="cat_shoes")],
+            [InlineKeyboardButton("👕 Одежда", callback_data="cat_clothes")],
+            [InlineKeyboardButton("👜 Аксессуары", callback_data="cat_accessories")]
         ]
-        inline_markup = InlineKeyboardMarkup(inline_keyboard)
-        
-        # Создаем клавиатуру с кнопкой веб-приложения внизу экрана
-        keyboard = [[KeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        
-        await update.message.reply_text("Выберите категорию товаров:", reply_markup=inline_markup)
-        
-        # Устанавливаем клавиатуру с кнопкой веб-приложения
+        reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
-            "Или используйте кнопку WebApp:",
+            "📱 Выберите категорию:",
             reply_markup=reply_markup
         )
+        logger.info("Catalog command processed successfully")
     except Exception as e:
-        logger.error(f"Error in catalog command: {e}")
+        logger.error(f"Error in catalog command: {e}", exc_info=True)
+        await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработчик нажатий на кнопки"""
+    """Обработчик нажатий на inline кнопки"""
     try:
         query = update.callback_query
-        await query.answer()
+        logger.info(f"Button callback received: {query.data} from user {query.from_user.id}")
         
-        if query.data.startswith('category_'):
-            category = query.data.split('_')[1]
-            await query.message.reply_text(f"Вы выбрали категорию: {category}")
-        elif query.data == 'cart':
-            await query.message.reply_text("Ваша корзина пуста")
+        # Обработка категорий
+        if query.data.startswith("cat_"):
+            category = query.data.split("_")[1]
+            await query.answer(f"Выбрана категория: {category}")
+            await query.edit_message_text(f"Показываю товары в категории {category}...")
+            
+        logger.info("Button callback processed successfully")
     except Exception as e:
-        logger.error(f"Error in button handler: {e}")
-        await query.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
+        logger.error(f"Error in button handler: {e}", exc_info=True)
+        await query.answer("Произошла ошибка. Пожалуйста, попробуйте позже.")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик текстовых сообщений"""
     try:
-        text = update.message.text.lower()
-        if text in ['привет', 'hello', 'hi']:
-            await update.message.reply_text("Привет! Используйте /start для начала работы с ботом.")
-        elif text == 'open app':
-            await open_app(update, context)
-        else:
-            # Создаем клавиатуру с кнопкой веб-приложения внизу экрана
-            keyboard = [[KeyboardButton("Open App", web_app=WebAppInfo(url=WEBAPP_URL))]]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-            
-            await update.message.reply_text(
-                "Используйте /start для начала работы с ботом или /help для просмотра доступных команд.",
-                reply_markup=reply_markup
-            )
+        logger.info(f"Message received: {update.message.text} from user {update.effective_user.id}")
+        if update.message.text == "📱 Каталог":
+            await catalog_command(update, context)
+        elif update.message.text == "ℹ️ Помощь":
+            await help_command(update, context)
+        elif update.message.text == "👤 Профиль":
+            await update.message.reply_text("Функция профиля в разработке")
+        elif update.message.text == "🛒 Корзина":
+            await update.message.reply_text("Функция корзины в разработке")
+        logger.info("Message processed successfully")
     except Exception as e:
-        logger.error(f"Error in message handler: {e}")
+        logger.error(f"Error in message handler: {e}", exc_info=True)
+        await update.message.reply_text("Произошла ошибка. Пожалуйста, попробуйте позже.")
 
 def main():
     """Основная функция запуска бота"""
     try:
+        logger.info("Starting bot initialization...")
+        
+        # Создание и настройка бота с увеличенным таймаутом
+        application = Application.builder().token(TOKEN).connect_timeout(30.0).read_timeout(30.0).write_timeout(30.0).build()
+        logger.info("Application instance created")
+        
         # Инициализация базы данных внутри контекста приложения
         with app.app_context():
-            init_db()
+            logger.info("Initializing database...")
+            # Создаем таблицы если их нет
+            db.create_all()
+            logger.info("Database tables created")
             
-            # Создание и настройка бота
-            application = Application.builder().token(TOKEN).build()
+            # Инициализируем админа
+            Admin.init_superadmin()
+            logger.info("Superadmin initialized")
             
             # Добавляем обработчики
             application.add_handler(CommandHandler("start", start))
@@ -214,18 +185,22 @@ def main():
             application.add_handler(CommandHandler("openapp", open_app))
             application.add_handler(CallbackQueryHandler(button_handler))
             application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+            logger.info("Command handlers added")
             
             # Устанавливаем функцию настройки при старте
             application.post_init = setup_commands_and_menu
             
             # Регистрация админ-хендлеров
             setup_admin_handlers(application)
+            logger.info("Admin handlers registered")
             
             # Запускаем бота
-            logger.info("Starting bot...")
+            logger.info("Starting polling...")
             application.run_polling(allowed_updates=Update.ALL_TYPES)
+            
     except Exception as e:
-        logger.error(f"Error in main: {e}")
+        logger.error(f"Critical error in main: {e}", exc_info=True)
+        raise
 
 if __name__ == '__main__':
     main() 

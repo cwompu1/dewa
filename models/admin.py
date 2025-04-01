@@ -5,7 +5,7 @@ class Admin(db.Model):
     __tablename__ = 'admins'
     
     id = db.Column(db.Integer, primary_key=True)
-    telegram_id = db.Column(db.String(50), unique=True, nullable=False)
+    telegram_id = db.Column(db.BigInteger, unique=True, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     role = db.Column(db.String(20), nullable=False, default='admin')  # superadmin, admin
     is_active = db.Column(db.Boolean, default=True)
@@ -24,16 +24,21 @@ class Admin(db.Model):
     @staticmethod
     def init_superadmin():
         """Инициализация главного администратора"""
-        superadmin = Admin.query.filter_by(role='superadmin').first()
-        if not superadmin:
-            superadmin = Admin(
-                telegram_id='gafurrovvv',
-                username='gafurrovvv',
-                role='superadmin'
-            )
-            db.session.add(superadmin)
-            db.session.commit()
-        return superadmin
+        try:
+            superadmin = Admin.query.filter_by(role='superadmin').first()
+            if not superadmin:
+                superadmin = Admin(
+                    telegram_id=7829321327,  # Your actual Telegram ID
+                    username='cwompubot',  # Your bot's username
+                    role='superadmin'
+                )
+                db.session.add(superadmin)
+                db.session.commit()
+            return superadmin
+        except Exception as e:
+            print(f"Error initializing superadmin: {e}")
+            db.session.rollback()
+            return None
     
     def can_manage_admins(self):
         """Проверка прав на управление администраторами"""
