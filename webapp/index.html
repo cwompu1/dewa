@@ -35,6 +35,42 @@
             /* Отключаем масштабирование при двойном тапе */
             touch-action: manipulation;
             -webkit-overflow-scrolling: touch;
+            /* Запрет выделения текста по умолчанию */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Разрешаем выделение текста только в полях ввода */
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        
+        /* Запрет выделения текста для всех интерактивных элементов */
+        .feature-card,
+        .action-button,
+        .calc-button,
+        .points-card,
+        .telegram-channel,
+        .user-info,
+        .section-header,
+        .lookbook-item,
+        .user-tag,
+        .see-all {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Убираем подсветку при тапе на мобильных устройствах */
+        * {
+            -webkit-tap-highlight-color: transparent;
         }
         
         #app {
