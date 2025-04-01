@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор приложения</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background: #343a40;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.8);
+            padding: .75rem 1.5rem;
+        }
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,.1);
+        }
+        .sidebar .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,.2);
+        }
+        .sidebar .nav-link i {
+            margin-right: .5rem;
+        }
+        main {
+            padding-top: 48px;
+        }
+        .preview-container {
+            border: 2px dashed #ccc;
+            min-height: 300px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .component-item {
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .component-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        .color-picker {
+            width: 50px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Боковое меню -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky">
+                    <div class="px-3 py-4 text-white">
+                        <h5>Админ-панель</h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="fas fa-home"></i>
+                                Главная
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#users">
+                                <i class="fas fa-users"></i>
+                                Пользователи
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#orders">
+                                <i class="fas fa-shopping-cart"></i>
+                                Заказы
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#products">
+                                <i class="fas fa-box"></i>
+                                Товары
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="constructor.html">
+                                <i class="fas fa-tools"></i>
+                                Конструктор
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#settings">
+                                <i class="fas fa-cog"></i>
+                                Настройки
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="index.html">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Выйти
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Основной контент -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1>Конструктор приложения</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-success" onclick="saveChanges()">
+                                <i class="fas fa-save"></i> Сохранить
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="previewChanges()">
+                                <i class="fas fa-eye"></i> Предпросмотр
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Панель компонентов -->
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Компоненты</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="component-item" draggable="true" data-type="button">
+                                    <i class="fas fa-square"></i> Кнопка
+                                </div>
+                                <div class="component-item" draggable="true" data-type="text">
+                                    <i class="fas fa-font"></i> Текст
+                                </div>
+                                <div class="component-item" draggable="true" data-type="image">
+                                    <i class="fas fa-image"></i> Изображение
+                                </div>
+                                <div class="component-item" draggable="true" data-type="form">
+                                    <i class="fas fa-wpforms"></i> Форма
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Настройки стилей -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Стили</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Цвет фона</label>
+                                    <input type="color" class="color-picker" id="bgColor">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Цвет текста</label>
+                                    <input type="color" class="color-picker" id="textColor">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Размер текста</label>
+                                    <select class="form-select" id="fontSize">
+                                        <option value="12">12px</option>
+                                        <option value="14">14px</option>
+                                        <option value="16" selected>16px</option>
+                                        <option value="18">18px</option>
+                                        <option value="20">20px</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Область предпросмотра -->
+                    <div class="col-md-9">
+                        <div class="preview-container" id="previewArea">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-arrows-alt fa-2x mb-2"></i>
+                                <p>Перетащите компоненты сюда</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Drag and Drop функционал
+        const components = document.querySelectorAll('.component-item');
+        const previewArea = document.getElementById('previewArea');
+
+        components.forEach(component => {
+            component.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', component.dataset.type);
+            });
+        });
+
+        previewArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        previewArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const type = e.dataTransfer.getData('text/plain');
+            addComponent(type, e.clientX, e.clientY);
+        });
+
+        function addComponent(type, x, y) {
+            const component = document.createElement('div');
+            component.className = 'component';
+            
+            switch(type) {
+                case 'button':
+                    component.innerHTML = '<button class="btn btn-primary">Новая кнопка</button>';
+                    break;
+                case 'text':
+                    component.innerHTML = '<p>Новый текст</p>';
+                    break;
+                case 'image':
+                    component.innerHTML = '<img src="https://via.placeholder.com/150" alt="Изображение">';
+                    break;
+                case 'form':
+                    component.innerHTML = `
+                        <form>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Введите текст">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    `;
+                    break;
+            }
+            
+            previewArea.appendChild(component);
+        }
+
+        // Функции для кнопок
+        function saveChanges() {
+            alert('Изменения сохранены!');
+        }
+
+        function previewChanges() {
+            alert('Открыт предпросмотр!');
+        }
+
+        // Обработка изменения стилей
+        document.getElementById('bgColor').addEventListener('change', (e) => {
+            previewArea.style.backgroundColor = e.target.value;
+        });
+
+        document.getElementById('textColor').addEventListener('change', (e) => {
+            previewArea.style.color = e.target.value;
+        });
+
+        document.getElementById('fontSize').addEventListener('change', (e) => {
+            previewArea.style.fontSize = e.target.value + 'px';
+        });
+    </script>
+</body>
+</html> 
