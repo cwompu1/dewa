@@ -29,7 +29,8 @@ async def setup_commands_and_menu(application):
         BotCommand("start", "Начать работу с ботом"),
         BotCommand("help", "Показать справку"),
         BotCommand("catalog", "Показать каталог товаров"),
-        BotCommand("openapp", "Открыть веб-приложение")
+        BotCommand("openapp", "Открыть веб-приложение"),
+        BotCommand("admin", "Панель администратора")
     ]
     
     # Установка команд бота
@@ -207,22 +208,22 @@ def main():
         application = Application.builder().token(TOKEN).build()
 
         # Добавляем обработчики
-        app.add_handler(CommandHandler("start", start))
-        app.add_handler(CommandHandler("help", help_command))
-        app.add_handler(CommandHandler("catalog", catalog_command))
-        app.add_handler(CommandHandler("openapp", open_app))
-        app.add_handler(CallbackQueryHandler(button_handler))
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("catalog", catalog_command))
+        application.add_handler(CommandHandler("openapp", open_app))
+        application.add_handler(CallbackQueryHandler(button_handler))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
         # Устанавливаем функцию настройки при старте
-        app.post_init = setup_commands_and_menu
+        application.post_init = setup_commands_and_menu
         
         # Регистрация админ-хендлеров
         setup_admin_handlers(application)
         
         # Запускаем бота
         logger.info("Starting bot...")
-        app.run_polling(allowed_updates=Update.ALL_TYPES)
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
     except Exception as e:
         logger.error(f"Error in main: {e}")
 
